@@ -1,4 +1,4 @@
-function sendMessage() {
+async function sendMessage() {
     const input = document.getElementById("userInput");
     const messageText = input.value.trim();
     if (messageText === "") return;
@@ -11,25 +11,23 @@ function sendMessage() {
     userMessage.innerText = messageText;
     chatMessages.appendChild(userMessage);
 
-    // Fake bot reply (for now)
+    input.value = "";
+
+    // Bot placeholder
     const botMessage = document.createElement("div");
     botMessage.className = "message bot";
-    botMessage.innerText = "Thinking...";
+    botMessage.innerText = "Typing...";
     chatMessages.appendChild(botMessage);
 
     chatMessages.scrollTop = chatMessages.scrollHeight;
-    input.value = "";
 
-    // Simulate bot delay
-    setTimeout(() => {
-        botMessage.innerText = "This is where AI reply will come 😉";
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }, 800);
+    const response = await fetch("http://127.0.0.1:8000/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: messageText })
+    });
+
+    const data = await response.json();
+    botMessage.innerText = data.reply;
 }
 
-// Enter key support
-document.getElementById("userInput").addEventListener("keypress", function (e) {
-    if (e.key === "Enter") {
-        sendMessage();
-    }
-});
